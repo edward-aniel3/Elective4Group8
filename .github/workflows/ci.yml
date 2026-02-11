@@ -38,7 +38,9 @@ jobs:
             echo "No requirements.txt found"
             exit 1
           fi
-
+      - name: Install package
+        run: pip install -e .
+        
       - name: Run tests with pytest
         run: pytest -v
 
