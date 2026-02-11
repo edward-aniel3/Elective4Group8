@@ -162,18 +162,13 @@ Elective4Group8/
 ├── src/
 │   └── elective4group8/        # Main package directory
 │       ├── __init__.py         # Package initialization
-│       ├── main.py             # Main menu entry point
 │       ├── background_remover.py       # Module 1: Background removal
 │       ├── puzzle_shuffle.py           # Module 2: Puzzle shuffle game
 │       ├── minecraft_filter.py         # Module 3: Minecraft filter + face overlay
 │       ├── mosaic_tile_effect.py       # Module 4: Mosaic tile effect
-│       ├── steve_face.png              # Minecraft Steve face overlay asset
-│       └── alex_face.png               # Minecraft Alex face overlay asset
 │
 ├── tests/
 │   ├── __init__.py
-│   ├── test_sample.py          # Sample test (demonstrates pytest setup)
-│   ├── test_calculator.py      # Demonstration test for calculator module
 │   ├── test_background_remover.py  # Tests for Module 1
 │   ├── test_puzzle_shuffle.py      # Tests for Module 2
 │   ├── test_minecraft_filter.py    # Tests for Module 3
@@ -188,9 +183,14 @@ Elective4Group8/
 │   ├── PACKAGE_EXECUTABLE.bat  # Package the executable
 │   └── VERIFY_ENVIRONMENT.bat  # Verify Python environment
 │
+├── referenceImages/              # Reference Images
+│   ├── steve_face.png            # Minecraft Steve face overlay asset
+│   └── alex_face.png             # Minecraft Alex face overlay asset
+│
 ├── input/                      # Source images (place images here)
 ├── output/                     # Processed images (generated output)
 │
+├── main.py                     # Main menu entry point
 ├── setup.py                    # Package setup configuration
 ├── requirements.txt            # Python dependencies
 ├── .gitignore                  # Git ignore rules
