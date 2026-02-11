@@ -63,13 +63,13 @@ A Python-based image processing application featuring four modules, a unified GU
 
 2. **Run the setup script** (one-time only):
    ```
-   Double-click: SETUP_FIRST.bat
+   Double-click: batch_scripts/SETUP_FIRST.bat
    ```
    This will check your Python installation, create a virtual environment, and install all required packages automatically.
 
 3. **Launch the application:**
    ```
-   Double-click: RUN_APP.bat
+   Double-click: batch_scripts/RUN_APP.bat
    ```
    The main menu will open with all four modules ready to use.
 
@@ -78,7 +78,7 @@ A Python-based image processing application featuring four modules, a unified GU
 If you want a portable `.exe` that runs without Python installed:
 
 1. Complete the setup above first.
-2. Double-click `BUILD_EXECUTABLE.bat` (takes 5–10 minutes).
+2. Double-click `batch_scripts/BUILD_EXECUTABLE.bat` (takes 5–10 minutes).
 3. The executable will be created in the `dist/` folder.
 4. Double-click `dist\ImageProcessingSystem.exe` to run it on any Windows PC — no Python needed.
 
@@ -98,7 +98,7 @@ If you want a portable `.exe` that runs without Python installed:
 ### Running the Application
 
 ```
-Double-click: RUN_APP.bat
+Double-click: batch_scripts/RUN_APP.bat
 ```
 
 The main menu will open. Select any of the four modules to launch it. Each module allows you to:
@@ -154,31 +154,48 @@ A green checkmark means all tests passed. A red X means something failed — cli
 ## Project Structure
 
 ```
-├── .github/workflows/
-│   └── ci.yml                  # GitHub Actions CI pipeline
+Elective4Group8/
+├── .github/
+│   └── workflows/
+│       └── ci.yml              # GitHub Actions CI pipeline
+│
+├── src/
+│   └── elective4group8/        # Main package directory
+│       ├── __init__.py         # Package initialization
+│       ├── main.py             # Main menu entry point
+│       ├── background_remover.py       # Module 1: Background removal
+│       ├── puzzle_shuffle.py           # Module 2: Puzzle shuffle game
+│       ├── minecraft_filter.py         # Module 3: Minecraft filter + face overlay
+│       ├── mosaic_tile_effect.py       # Module 4: Mosaic tile effect
+│       ├── steve_face.png              # Minecraft Steve face overlay asset
+│       └── alex_face.png               # Minecraft Alex face overlay asset
+│
+├── tests/
+│   ├── __init__.py
+│   ├── test_sample.py          # Sample test (demonstrates pytest setup)
+│   ├── test_calculator.py      # Demonstration test for calculator module
+│   ├── test_background_remover.py  # Tests for Module 1
+│   ├── test_puzzle_shuffle.py      # Tests for Module 2
+│   ├── test_minecraft_filter.py    # Tests for Module 3
+│   └── test_mosaic_tile_effect.py  # Tests for Module 4
+│
+├── batch_scripts/              # Batch files for setup and execution
+│   ├── SETUP_FIRST.bat         # One-time setup (installs dependencies)
+│   ├── RUN_APP.bat             # Launch the application
+│   ├── RUN_EXECUTABLE.bat      # Run built executable
+│   ├── BUILD_EXECUTABLE.bat    # Build standalone .exe (optional)
+│   ├── REBUILD_EXECUTABLE.bat  # Rebuild existing .exe
+│   ├── PACKAGE_EXECUTABLE.bat  # Package the executable
+│   └── VERIFY_ENVIRONMENT.bat  # Verify Python environment
+│
 ├── input/                      # Source images (place images here)
 ├── output/                     # Processed images (generated output)
 │
-├── main.py                     # Main menu entry point
-├── background_remover.py       # Module 1: Background removal
-├── puzzle_shuffle.py           # Module 2: Puzzle shuffle game
-├── minecraft_filter.py         # Module 3: Minecraft filter + face overlay
-├── mosaic_tile_effect.py       # Module 4: Mosaic tile effect
-│
-├── test_background_remover.py  # Tests for Module 1
-├── test_puzzle_shuffle.py      # Tests for Module 2
-├── test_minecraft_filter.py    # Tests for Module 3
-├── test_mosaic_tile_effect.py  # Tests for Module 4
-│
-├── steve_face.png              # Minecraft Steve face overlay asset
-├── alex_face.png               # Minecraft Alex face overlay asset
-│
-├── SETUP_FIRST.bat             # One-time setup (installs dependencies)
-├── RUN_APP.bat                 # Launch the application
-├── BUILD_EXECUTABLE.bat        # Build standalone .exe (optional)
+├── setup.py                    # Package setup configuration
 ├── requirements.txt            # Python dependencies
 ├── .gitignore                  # Git ignore rules
-└── README.md                   # This file
+├── README.md                   # This file
+└── .git/                       # Git repository
 ```
 
 ---
