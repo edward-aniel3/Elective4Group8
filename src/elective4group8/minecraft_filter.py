@@ -31,7 +31,9 @@ if getattr(sys, 'frozen', False):
 else:
     # Running as script
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    RESOURCE_DIR = BASE_DIR
+    # Resource files are in reference-imgs folder (2 levels up, then into reference-imgs)
+    PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", ".."))
+    RESOURCE_DIR = os.path.join(PROJECT_ROOT, "reference-imgs")
     
 INPUT_DIR  = os.path.join(BASE_DIR, "input")
 OUTPUT_DIR = os.path.join(BASE_DIR, "output")
@@ -238,7 +240,7 @@ def overlay_minecraft_face(image, faces, gender_mode="auto",
     alex  = cv2.imread(alex_path)
 
     if steve is None and alex is None:
-        print(f"[WARNING] Face overlay PNGs not found in {BASE_DIR}")
+        print(f"[WARNING] Face overlay PNGs not found in {RESOURCE_DIR}")
         return image
 
     out = image.copy()
