@@ -212,7 +212,7 @@ A green checkmark means all tests passed. A red X means something failed — cli
 ## DevOps Concepts Demonstrated
 
 - **Continuous Integration (CI):** Automated build and test pipeline on every push
-- **Automated Testing:** 12 unit tests validating all core functions
+- **Automated Testing:** Unit tests validating all core functions
 - **Version Control:** Full commit history with timestamps via Git/GitHub
 - **Collaboration:** Branch-based workflow with pull requests and code review
 - **Reproducibility:** `requirements.txt` ensures consistent environments
