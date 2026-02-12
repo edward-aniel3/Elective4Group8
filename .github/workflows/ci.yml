@@ -183,29 +183,56 @@ jobs:
           print(f"{'=' * 60}")
           EOF
 
-      - name: Check for output changes
+      - name: Verify output files were created
+        if: steps.check_images.outputs.has_images == 'true'
+        run: |
+          echo "📂 Checking output folder structure..."
+          ls -R output/ || echo "Output folder not found"
+          
+          echo ""
+          echo "📊 Output file count:"
+          find output/ -type f -name "*.png" | wc -l
+          
+          echo ""
+          echo "📄 Generated files:"
+          find output/ -type f -name "*.png" -exec ls -lh {} \;
+
+      - name: Add output files to git
         id: check_changes
         if: steps.check_images.outputs.has_images == 'true'
         run: |
+          echo "➕ Adding all output files to git..."
           git add output/
+          
           if git diff --staged --quiet; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
-            echo "⚠️  No new output files"
+            echo "⚠️  No new changes to commit (files may already exist)"
           else
             echo "has_changes=true" >> $GITHUB_OUTPUT
-            echo "✅ New output files detected"
+            echo "✅ New output files detected and staged"
+            echo ""
+            echo "📋 Files to be committed:"
             git diff --staged --stat
+            git diff --staged --name-only
           fi
 
-      - name: Commit and push processed images
+      - name: Commit and push output files to repository
         if: steps.check_changes.outputs.has_changes == 'true'
         run: |
+          echo "⚙️  Configuring git..."
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
           image_count=$(ls input/*.{png,jpg,jpeg,bmp} 2>/dev/null | wc -l)
-          git commit -m "🤖 Auto-processed $image_count image(s) - $(date +'%Y-%m-%d %H:%M UTC')"
+          output_count=$(find output/ -type f -name "*.png" | wc -l)
+          
+          echo "📝 Creating commit..."
+          git commit -m "🤖 Auto-processed $image_count image(s) → $output_count output file(s) - $(date +'%Y-%m-%d %H:%M UTC')"
+          
+          echo "📤 Pushing to repository..."
           git push
+          
+          echo "✅ Output files successfully uploaded to output/ folder on GitHub!"
 
       - name: Summary
         if: always()
