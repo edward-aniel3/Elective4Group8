@@ -48,3 +48,175 @@ jobs:
       - name: Test Summary
         if: always()
         run: echo "Tests completed with exit code $?"
+
+  process-images:
+    name: Auto-Process Input Images
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    needs: test
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-glx libglib2.0-0
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Check for images in input folder
+        id: check_images
+        run: |
+          if ls input/*.{png,jpg,jpeg,bmp} 1> /dev/null 2>&1; then
+            echo "has_images=true" >> $GITHUB_OUTPUT
+            echo "✅ Images found in input/ folder"
+            ls -lh input/
+          else
+            echo "has_images=false" >> $GITHUB_OUTPUT
+            echo "⚠️  No images found in input/ folder"
+          fi
+
+      - name: Process all images through all modules
+        if: steps.check_images.outputs.has_images == 'true'
+        run: |
+          python << 'EOF'
+          import os
+          import sys
+          import cv2
+          import numpy as np
+          import random
+          from pathlib import Path
+          
+          # Import processing functions
+          from elective4group8.background_remover import remove_background_smart
+          from elective4group8.minecraft_filter import minecraft_filter
+          from elective4group8.mosaic_tile_effect import blockify_image
+          from elective4group8.puzzle_shuffle import shuffle_image_puzzle
+          
+          # Setup directories
+          input_dir = Path("input")
+          output_dir = Path("output")
+          
+          output_dirs = {
+              "background_removed": output_dir / "background_removed",
+              "minecraft": output_dir / "minecraft",
+              "mosaic": output_dir / "mosaic",
+              "puzzle": output_dir / "puzzle"
+          }
+          
+          for dir_path in output_dirs.values():
+              dir_path.mkdir(parents=True, exist_ok=True)
+          
+          # Get all images
+          image_files = [f for f in input_dir.iterdir() 
+                        if f.suffix.lower() in ['.png', '.jpg', '.jpeg', '.bmp']]
+          
+          print(f"\n{'=' * 60}")
+          print(f"🚀 Processing {len(image_files)} image(s)")
+          print(f"{'=' * 60}\n")
+          
+          for img_path in image_files:
+              print(f"📷 Processing: {img_path.name}")
+              img = cv2.imread(str(img_path))
+              if img is None:
+                  print(f"   ❌ Failed to load")
+                  continue
+              
+              base_name = img_path.stem
+              
+              # 1. Background Remover
+              try:
+                  output_bg = remove_background_smart(img.copy())
+                  out_path = output_dirs["background_removed"] / f"{base_name}_bg_removed.png"
+                  cv2.imwrite(str(out_path), output_bg)
+                  print(f"   ✅ Background removed")
+              except Exception as e:
+                  print(f"   ⚠️  BG remover: {e}")
+              
+              # 2. Minecraft Filter
+              try:
+                  output_mc = minecraft_filter(img.copy(), block_size=8)
+                  out_path = output_dirs["minecraft"] / f"{base_name}_minecraft.png"
+                  cv2.imwrite(str(out_path), output_mc)
+                  print(f"   ✅ Minecraft filter applied")
+              except Exception as e:
+                  print(f"   ⚠️  Minecraft: {e}")
+              
+              # 3. Mosaic Tile Effect
+              try:
+                  output_mosaic = blockify_image(img.copy(), block_size=16)
+                  out_path = output_dirs["mosaic"] / f"{base_name}_mosaic.png"
+                  cv2.imwrite(str(out_path), output_mosaic)
+                  print(f"   ✅ Mosaic effect created")
+              except Exception as e:
+                  print(f"   ⚠️  Mosaic: {e}")
+              
+              # 4. Puzzle Shuffle
+              try:
+                  for difficulty, grid_size in [("easy", 3), ("medium", 4), ("hard", 5)]:
+                      shuffled, _ = shuffle_image_puzzle(img.copy(), (grid_size, grid_size), seed=42)
+                      out_path = output_dirs["puzzle"] / f"{base_name}_puzzle_{difficulty}.png"
+                      cv2.imwrite(str(out_path), shuffled)
+                  print(f"   ✅ Puzzles generated (easy/medium/hard)")
+              except Exception as e:
+                  print(f"   ⚠️  Puzzle: {e}")
+              
+              print()
+          
+          print(f"{'=' * 60}")
+          print(f"✅ All images processed successfully!")
+          print(f"{'=' * 60}")
+          EOF
+
+      - name: Check for output changes
+        id: check_changes
+        if: steps.check_images.outputs.has_images == 'true'
+        run: |
+          git add output/
+          if git diff --staged --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "⚠️  No new output files"
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "✅ New output files detected"
+            git diff --staged --stat
+          fi
+
+      - name: Commit and push processed images
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          image_count=$(ls input/*.{png,jpg,jpeg,bmp} 2>/dev/null | wc -l)
+          git commit -m "🤖 Auto-processed $image_count image(s) - $(date +'%Y-%m-%d %H:%M UTC')"
+          git push
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## 🎨 Image Processing Summary" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check_images.outputs.has_images }}" == "true" ]; then
+            echo "✅ Images processed through all 4 modules:" >> $GITHUB_STEP_SUMMARY
+            echo "- 🔵 Background Remover" >> $GITHUB_STEP_SUMMARY
+            echo "- 🟢 Minecraft Filter" >> $GITHUB_STEP_SUMMARY
+            echo "- 🟣 Mosaic Tile Effect" >> $GITHUB_STEP_SUMMARY
+            echo "- 🟠 Puzzle Shuffle (Easy/Medium/Hard)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️  No images in input/ folder" >> $GITHUB_STEP_SUMMARY
+          fi
