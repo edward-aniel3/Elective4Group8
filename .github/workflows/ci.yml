@@ -10,6 +10,9 @@ on:
       - main
       - development
 
+permissions:
+  contents: write
+
 jobs:
   process-images:
     name: Auto-Process Input Images
@@ -21,6 +24,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
 
       - name: Set up Python 3.10
         uses: actions/setup-python@v5
