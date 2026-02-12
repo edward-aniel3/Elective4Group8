@@ -72,11 +72,9 @@ MINECRAFT_PALETTE = np.array([
 #  CORE IMAGE PROCESSING FUNCTIONS
 # ══════════════════════════════════════════════════════════
 
-def minecraft_filter(image, block_size=10):
-    """Apply a Minecraft-style colour mapping filter.
-
-    Each *block_size* x *block_size* block is replaced with the
-    closest colour from the Minecraft palette (Euclidean distance).
+def minecraft_filter(image, block_size=8, overlay_faces=True):
+    """
+    Apply Minecraft-style pixelation with optional face overlay
     """
     h, w = image.shape[:2]
     out = image.copy()
@@ -88,6 +86,16 @@ def minecraft_filter(image, block_size=10):
                 (MINECRAFT_PALETTE.astype(float) - avg) ** 2, axis=1))
             idx = int(np.argmin(dists))
             out[y:y + block_size, x:x + block_size] = MINECRAFT_PALETTE[idx]
+    
+    # Apply face overlay if requested
+    if overlay_faces:
+        try:
+            faces = detect_faces(image)
+            if len(faces) > 0:
+                out = overlay_minecraft_face(out, faces, gender_mode="auto", detected_image=image)
+        except Exception as e:
+            print(f"⚠️  Face overlay failed: {e}")
+    
     return out
 
 
