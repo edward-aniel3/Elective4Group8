@@ -93,26 +93,6 @@ If you want a portable `.exe` that runs without Python installed:
 
 ---
 
-## Usage
-
-### Running the Application
-
-```
-Double-click: RUN_APP.bat
-```
-
-The main menu will open. Select any of the four modules to launch it. Each module allows you to:
-1. Load an image (from the `input/` folder or via file dialog)
-2. Apply the processing effect
-3. Save the result to the `output/` folder
-
-### Input / Output
-
-- Place images in the `input/` folder or use the GUI file dialog to load images.
-- Processed images are saved to the `output/` folder.
-
----
-
 ## Running Tests
 
 ```bash
