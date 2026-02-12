@@ -43,10 +43,19 @@ jobs:
       - name: Check for images in input folder
         id: check_images
         run: |
-          if ls input/*.{png,jpg,jpeg,bmp} 1> /dev/null 2>&1; then
+          echo "📁 Checking input/ folder contents..."
+          ls -la input/ || echo "input/ folder not found"
+          
+          echo ""
+          echo "🔍 Looking for image files..."
+          image_count=$(find input/ -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.bmp" \) 2>/dev/null | wc -l)
+          
+          echo "Found $image_count image file(s)"
+          
+          if [ "$image_count" -gt 0 ]; then
             echo "has_images=true" >> $GITHUB_OUTPUT
-            echo "✅ Images found in input/ folder"
-            ls -lh input/
+            echo "✅ Images found in input/ folder:"
+            find input/ -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.bmp" \) -exec ls -lh {} \;
           else
             echo "has_images=false" >> $GITHUB_OUTPUT
             echo "⚠️  No images found in input/ folder"
